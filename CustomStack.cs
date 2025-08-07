@@ -8,58 +8,52 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
 {
     public class CustomStack<T>
     {
-        private T[] array;   // This holds the actual stack items
-        private int top;     // Index of the topmost item in the stack
+        private T[] array;  // Stack storage
+        private int top;    // Points to the topmost item
 
-        // Constructor - sets up the starting size of the stack
         public CustomStack()
         {
-            array = new T[5];  // Start with room for 5 items
-            top = -1;          // Stack is empty initially
+            array = new T[10];
+            top = -1;  // Stack is empty
         }
 
-        // Push adds a new item on top of the stack
+        // Push item to the top of the stack
         public void Push(T item)
         {
-            top++;  // Move up the top index
-
-            if (top < array.Length)
+            if (top < array.Length - 1)
             {
-                array[top] = item;  // Put the item at the new top position
+                top++;
+                array[top] = item;
             }
             else
             {
-                top--;     // Move back since we need to resize first
-                Resize();  // Make the array bigger
-                Push(item); // Try adding again
+                Resize();
+                Push(item);  // Retry after resizing
             }
         }
 
-        // Pop removes and returns the top item from the stack
+        // Pop (remove and return) the top item
         public T Pop()
         {
-            if (IsEmpty())
+            if (!IsEmpty())
             {
-                throw new InvalidOperationException("Stack is empty!");
-            }
-            else
-            {
-                T item = array[top]; // Get the top item
-                top--;               // Move the top index down
-                return item;         // Return the removed item
+                T item = array[top];
+                top--;
+                return item;
             }
 
+            throw new InvalidOperationException("Stack is empty.");
         }
 
-        // Peek lets you see the top item without removing it
+        // Peek (return but don't remove) the top item
         public T Peek()
         {
-            if (IsEmpty())
+            if (!IsEmpty())
             {
-                throw new InvalidOperationException("Stack is empty!");
+                return array[top];
             }
 
-            return array[top];
+            throw new InvalidOperationException("Stack is empty.");
         }
 
         // Check if the stack is empty
@@ -68,34 +62,34 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
             return top == -1;
         }
 
-        // Returns the number of items in the stack
-        public int Count
-        {
-            get { return top + 1; }
-        }
-
-        // Doubles the array size when the stack is full
+        // Resize the array when full
         private void Resize()
         {
-            T[] newArray = new T[array.Length * 2];  // New bigger array
+            T[] newArray = new T[array.Length * 2];
 
-            for (int i = 0; i < array.Length; i++)
+            for (int i = 0; i <= top; i++)
             {
-                newArray[i] = array[i];              // Copy old items into the new one
+                newArray[i] = array[i];
             }
 
-            array = newArray;  // Replace the old array
+            array = newArray;
         }
 
-        // Optional: Get the current stack as an array (top to bottom)
-        public T[] GetStack()
+        // Optional: print stack contents (top to bottom)
+        public void PrintStack()
         {
-            T[] temp = new T[Count];
-            for (int i = 0; i < Count; i++)
+            Console.WriteLine("Stack contents (top to bottom):");
+
+            for (int i = top; i >= 0; i--)
             {
-                temp[i] = array[i];
+                Console.WriteLine(array[i]);
             }
-            return temp;
+        }
+
+        // Optional: get the number of items
+        public int Count()
+        {
+            return top + 1;
         }
     }
 }

@@ -6,221 +6,65 @@ using System.Threading.Tasks;
 
 namespace DSTALGO_FINAL_PROJECT_GROUP2
 {
-    internal class Program
+    class Program
     {
-        internal class Program
+        static void Main(string[] args)
         {
-            // Global declarations
-            static List<Student> students = new List<Student>();
-            static List<Course> courses = new List<Course>();
-            static Queue<Student> pendingApprovals = new Queue<Student>();
-            static Stack<Student> approvedHistory = new Stack<Student>();
+            //List of Courses
+            //Stack ADT for Undo/Backtrack
 
-            static void Main(string[] args)
-            {
-                InitializeCourses();
 
-                while (true)
-                {
-                    Console.Clear();
-                    Console.WriteLine("=== Enrollment System ===");
-                    Console.WriteLine("[1] - Login as Student");
-                    Console.WriteLine("[2] - Login as Teacher");
-                    Console.WriteLine("[0] - Exit");
-                    Console.Write("\nSelect role> ");
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    string roleInput = Console.ReadLine();
-                    Console.ResetColor();
+            //[TEACHER's POV]
 
-                    if (roleInput == "1")
-                    {
-                        Console.Clear();
-                        Console.Write("Enter your name: ");
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        string name = Console.ReadLine();
-                        Console.ResetColor();
+            //Display all subjects for the 1st year, 3rd term
 
-                        Console.Write("Enter your student ID: ");
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        string id = Console.ReadLine();
-                        Console.ResetColor();
+            //Status = Teacher's decision-making if the student has passed or failed the subject
+            //1.) if the student failed in the pre-requisite subject, the student cannot take the next term course that has pre-requisite
+            //2.) if the student passed the subject, the student can take the next term course that has pre-requisite
+            //PROCESS
+            //step 1: display all sub for 1st yr 3rd term
+            //step 2: assume that the student took all the subject
+            //step 3: prompt user "Choose a Subject "
+            //step 4: prompt user "Enter Status for this Subject(Passed/Failed): "
+            //step 5: repeat the process for  the choose subject then after that is the enter status (hanggang lahat malagyan ng status)
+            //step 6: Exit
 
-                        Console.Write("Enter your year level (for tetsting purposes, type : 1): ");
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        int year = int.Parse(Console.ReadLine());
-                        Console.ResetColor();
 
-                        Console.Write("Enter your term (1, 2, or 3): ");
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        int term = int.Parse(Console.ReadLine());
-                        Console.ResetColor();
-                        List<Course> availableCourses = GetCoursesByYearTerm(year, term);
-                        Console.WriteLine("\n=== Available courses for your year and term: ===");
+            //[STUDENT's POV]
+            //[PRE-ENLISTMENT]
 
-                        foreach (Course course in availableCourses)
-                        {
-                            Console.WriteLine($"{course.CourseID}: {course.CourseName}");
-                        }
+            // This is the main entry point of the enrollment system
+            // UI
+            //Display the list of courses available for pre-enlistment (2nd Year, 1st Term)
+            /* [1] View enrolled courses
+               [2] Enlist Subject*/
 
-                        List<Course> selectedCourses = new List<Course>();
-                        string addMore;
-                        do
-                        {
-                            Console.Write("Enter Course ID to enroll: ");
-                            int selectedId = int.Parse(Console.ReadLine());
-                            Course selectedCourse = availableCourses.Find(c => c.CourseID == selectedId);
+            //NOTE: ALGO of code
+            //Student(User) will select the courses that the student want to pre-enlist
+            //Add the selected courses to the student's pre-enlistment list using Custom Built List ADT
+            //Add validation if the Student reaches the maximum amount of units (20 UNITS ONLY)
+            //Add validation for pre-requisite courses if the student failed or did not take the course
+            //Validate if the student already completed or enrolled the course 
+            //Student can view the pre-enlistment list of courses that the student(User) selected\
+            //Student can remove the course from the pre-enlistment list
+            //Student can undo or backtrack using Custom Built Stack ADT
+            //[END OF PRE-ENLISTMENT]
 
-                            if (selectedCourse != null)
-                            {
-                                selectedCourses.Add(selectedCourse);
-                            }
-                            else
-                            {
-                                Console.WriteLine("Invalid Course ID.");
-                            }
 
-                            Console.Write("Do you want to add another course? (yes/no): ");
-                            addMore = Console.ReadLine().ToLower();
 
-                        } while (addMore == "yes");
+            //[CHOOSING SECTION]
 
-                        Student newStudent = new Student(name, id, selectedCourses);
-                        pendingApprovals.Enqueue(newStudent);
-                        Console.WriteLine("\nYour enrollment has been submitted for approval.");
-                        Console.ReadKey();
-                    }
-                    else if (roleInput == "2")
-                    {
-                        while (true)
-                        {
-                            Console.Clear();
-                            Console.WriteLine("=== Teacher Panel ===\n");
+            //This is the second process point of the enrollment
+            //Display the list of available courses based on pre-enlisted subjects
 
-                            if (pendingApprovals.Count > 0)
-                            {
-                                Console.WriteLine("Students pending approval:");
-                                DisplayPendingGroupedByCourse();
+            //Student will select the courses that the student want for choosing section
 
-                                Console.Write("\nApprove the next student in queue? (yes/no): ");
-                                string approve = Console.ReadLine().ToLower();
+            //Display the section of the particular course that the student chose
 
-                                if (approve == "yes")
-                                {
-                                    Student nextStudent = pendingApprovals.Dequeue();
-                                    foreach (Course course in nextStudent.Courses)
-                                    {
-                                        course.EnrolledStudents.Add(nextStudent);
-                                    }
-                                    approvedHistory.Push(nextStudent);
-                                    Console.WriteLine($"Approved enrollment for {nextStudent.Name} (ID: {nextStudent.ID})");
-                                }
-                            }
-                            else
-                            {
-                                Console.WriteLine("No students are pending approval.");
-                            }
+            //Student will select the section that the student want to enroll into that course
 
-                            Console.Write("\nUndo last approval? (yes/no): ");
-                            string undo = Console.ReadLine().ToLower();
-                            if (undo == "yes" && approvedHistory.Count > 0)
-                            {
-                                Student undoStudent = approvedHistory.Pop();
-                                foreach (Course course in undoStudent.Courses)
-                                {
-                                    course.EnrolledStudents.Remove(undoStudent);
-                                }
-                                pendingApprovals.Enqueue(undoStudent);
-                                Console.WriteLine($"Undo successful for {undoStudent.Name} (ID: {undoStudent.ID})");
-                            }
+            //Add validations for overlapping schedule
 
-                            Console.WriteLine("\nAll Courses with Enrolled Students:");
-                            foreach (Course course in courses)
-                            {
-                                Console.WriteLine($"\n{course.CourseName} (Course ID: {course.CourseID})");
-                                foreach (Student s in course.EnrolledStudents)
-                                {
-                                    Console.WriteLine($"Student: {s.Name}, ID: {s.ID}, Status: Enrolled");
-                                }
-                            }
-
-                            Console.WriteLine("\nPress any key to return to main menu...");
-                            Console.ReadKey();
-                            break;
-                        }
-                    }
-                    else if (roleInput == "0")
-                    {
-                        Console.WriteLine("Exiting program...");
-                        break;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid role. Try again.");
-                        Console.ReadKey();
-                    }
-                }
-            }
-
-            static void InitializeCourses()
-            {
-                // 1st Year 1st Term
-                courses.Add(new Course(1, "BICHECO", 1, 1));
-                courses.Add(new Course(2, "CSBLIFE", 1, 1));
-                courses.Add(new Course(3, "INCOMPU", 1, 1));
-                courses.Add(new Course(4, "ISPRGG1", 1, 1));
-                courses.Add(new Course(5, "LEADMGT", 1, 1));
-                courses.Add(new Course(6, "PATHFT1", 1, 1));
-                courses.Add(new Course(7, "PURPCOM", 1, 1));
-                courses.Add(new Course(8, "UNDSELF", 1, 1));
-
-                // 1st Year 2nd Term
-                courses.Add(new Course(9, "CRITHNK", 1, 2));
-                courses.Add(new Course(10, "FUNDSYS", 1, 2));
-                courses.Add(new Course(11, "ISPRGG2", 1, 2));
-                courses.Add(new Course(12, "PATHFT2", 1, 2));
-                courses.Add(new Course(13, "MATWRLD", 1, 2));
-                courses.Add(new Course(14, "NSTP01", 1, 2));
-                courses.Add(new Course(15, "SCITECH", 1, 2));
-
-                // 1st Year 3rd Term
-                courses.Add(new Course(16, "ENTPROG", 1, 3));
-                courses.Add(new Course(17, "ASEANST", 1, 3));
-                courses.Add(new Course(18, "BUSPROC", 1, 3));
-                courses.Add(new Course(19, "ITINFRA", 1, 3));
-                courses.Add(new Course(20, "DSTALGO", 1, 3));
-                courses.Add(new Course(21, "PATHFT3", 1, 3));
-                courses.Add(new Course(22, "NSTP02", 1, 3));
-            }
-
-            static List<Course> GetCoursesByYearTerm(int year, int term)
-            {
-                return courses.FindAll(c => c.Year == year && c.Term == term);
-            }
-
-            static void DisplayPendingGroupedByCourse()
-            {
-                Dictionary<Course, List<Student>> courseStudentMap = new Dictionary<Course, List<Student>>();
-
-                foreach (Student student in pendingApprovals)
-                {
-                    foreach (Course course in student.Courses)
-                    {
-                        if (!courseStudentMap.ContainsKey(course))
-                        {
-                            courseStudentMap[course] = new List<Student>();
-                        }
-                        courseStudentMap[course].Add(student);
-                    }
-                }
-
-                foreach (var entry in courseStudentMap)
-                {
-                    Console.WriteLine($"\n{entry.Key.CourseName} (Course ID: {entry.Key.CourseID})");
-                    foreach (var student in entry.Value)
-                    {
-                        Console.WriteLine($"Student: {student.Name}, ID: {student.ID}, Status: Pending Approval");
-                    }
-                }
-            }
         }
     }
+}

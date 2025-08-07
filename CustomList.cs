@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,22 +6,20 @@ using System.Threading.Tasks;
 
 namespace DSTALGO_FINAL_PROJECT_GROUP2
 {
-    public class CustomList<T> : IEnumerable<T>
+    public class CustomList<T>
     {
         private T[] array;
         private int index;
 
         public CustomList()
         {
-            array = new T[5];
+            array = new T[10];
             index = -1;
         }
 
-        // Add an item to the list
         public void Add(T item)
         {
             index++;
-
             if (index < array.Length)
             {
                 array[index] = item;
@@ -35,87 +32,60 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
             }
         }
 
-        // Get number of items in the list
-        public int Count => index + 1;
-
-        // Get item at specific index
-        public T GetAt(int i)
+        public void RemoveAt()
         {
-            if (i >= 0 && i <= index)
-                return array[i];
-            else
-                throw new IndexOutOfRangeException("Index is out of bounds.");
+            if (index > -1 && index <= this.index)
+            {
+                for (int i = index; i < this.index; i++)
+                {
+                    {
+                        array[i] = array[i + 1];
+                    }
+                }
+                this.index--;
+            }
         }
-
-        // Resize internal array when full
+        
         private void Resize()
         {
-            T[] newArray = new T[array.Length * 2];
+            T[] newArr = new T[array.Length * 2];
             for (int i = 0; i < array.Length; i++)
             {
-                newArray[i] = array[i];
+                newArr[i] = array[i];
             }
-            array = newArray;
+            array = newArr;
         }
 
-        // Return a shallow copy array of current items
-        public T[] GetArray()
+        public void PrintList()
         {
-            T[] tempArr = new T[index + 1];
+            Console.WriteLine("List contents:");
             for (int i = 0; i <= index; i++)
             {
-                tempArr[i] = array[i];
+                Console.WriteLine(array[i]);
             }
-            return tempArr;
         }
 
-        // Find an item that matches a given condition
-        public T Find(Predicate<T> match)
+        // Optional: return current count of items
+        public int Count()
         {
-            for (int i = 0; i <= index; i++)
+            return index + 1;
+        }
+
+        // Optional: check if empty
+        public bool IsEmpty()
+        {
+            return index == -1;
+        }
+
+        // Optional: access by index
+        public T Get(int position)
+        {
+            if (position < 0 || position > index)
             {
-                if (match(array[i]))
-                    return array[i];
-            }
-            return default(T); // null for classes, zero/default for value types
-        }
-
-        // Remove the first occurrence of an item
-        public bool Remove(T item)
-        {
-            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
-
-            for (int i = 0; i <= index; i++)
-            {
-                if (comparer.Equals(array[i], item))
-                {
-                    // Shift everything left
-                    for (int j = i; j < index; j++)
-                    {
-                        array[j] = array[j + 1];
-                    }
-                    array[index] = default(T);
-                    index--;
-                    return true;
-                }
+                throw new IndexOutOfRangeException("Invalid index");
             }
 
-            return false;
-        }
-
-        // Make it usable in foreach loops
-        public IEnumerator<T> GetEnumerator()
-        {
-            for (int i = 0; i <= index; i++)
-            {
-                yield return array[i];
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
+            return array[position];
         }
     }
 }
-
