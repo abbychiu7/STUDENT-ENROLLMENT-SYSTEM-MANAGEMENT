@@ -6,17 +6,24 @@ using System.Threading.Tasks;
 
 namespace DSTALGO_FINAL_PROJECT_GROUP2
 {
+    //==============================//
+    //        CUSTOM LIST ADT       //
+    //==============================//
+    // This is our own version of a list (array) that can store any type of data.
+    // It works like List<T> in C#, but we made it ourselves for learning purposes.
+
     public class CustomList<T>
     {
-        private T[] array;
-        private int index;
+        private T[] array; // array to store elements
+        private int index; // how many items are currently stored
 
         public CustomList()
         {
-            array = new T[10];
+            array = new T[50]; // fixed capacity of 50 for simplicity
             index = -1;
         }
 
+        // Adds a new item to the list
         public void Add(T item)
         {
             index++;
@@ -27,65 +34,42 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
             else
             {
                 index--;
-                Resize();
-                Add(item);
+                Resize(); // resize the array if it is full
+                Add(item); // add the item again after resizing
             }
+
+
         }
 
-        public void RemoveAt()
-        {
-            if (index > -1 && index <= this.index)
-            {
-                for (int i = index; i < this.index; i++)
-                {
-                    {
-                        array[i] = array[i + 1];
-                    }
-                }
-                this.index--;
-            }
-        }
-        
         private void Resize()
         {
-            T[] newArr = new T[array.Length * 2];
+            T[] newArray = new T[array.Length * 2];
             for (int i = 0; i < array.Length; i++)
             {
-                newArr[i] = array[i];
+                newArray[i] = array[i];
             }
-            array = newArr;
+            array = newArray;
         }
 
-        public void PrintList()
+        // Removes an item from a specific position
+        public void RemoveAt(int index)
         {
-            Console.WriteLine("List contents:");
-            for (int i = 0; i <= index; i++)
+            for (int i = index; i < this.index - 1; i++)
             {
-                Console.WriteLine(array[i]);
+                array[i] = array[i + 1];
             }
+            this.index--;
         }
 
-        // Optional: return current count of items
+        // Gets an item from the list
+        public T Get(int index) { return array[index]; }
+
+        // Returns the number of items
         public int Count()
         {
             return index + 1;
         }
 
-        // Optional: check if empty
-        public bool IsEmpty()
-        {
-            return index == -1;
-        }
-
-        // Optional: access by index
-        public T Get(int position)
-        {
-            if (position < 0 || position > index)
-            {
-                throw new IndexOutOfRangeException("Invalid index");
-            }
-
-            return array[position];
-        }
     }
 }
+

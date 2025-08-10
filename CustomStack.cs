@@ -6,90 +6,42 @@ using System.Threading.Tasks;
 
 namespace DSTALGO_FINAL_PROJECT_GROUP2
 {
+    //==============================//
+    //       CUSTOM STACK ADT       //
+    //==============================//
+    // Our own Stack for storing Undo operations.
+    // Follows Last-In-First-Out (LIFO) behavior.
     public class CustomStack<T>
     {
-        private T[] array;  // Stack storage
-        private int top;    // Points to the topmost item
+        private T[] stack; // array to store stack elements
+        private int top;   // index of the top element
 
         public CustomStack()
         {
-            array = new T[10];
-            top = -1;  // Stack is empty
+            stack = new T[50];
+            top = -1; // empty stack
         }
 
-        // Push item to the top of the stack
+        // Push = put new item on top of stack
         public void Push(T item)
         {
-            if (top < array.Length - 1)
-            {
-                top++;
-                array[top] = item;
-            }
-            else
-            {
-                Resize();
-                Push(item);  // Retry after resizing
-            }
+            top++;
+            stack[top] = item;
         }
 
-        // Pop (remove and return) the top item
+        // Pop = remove and return top item
         public T Pop()
         {
-            if (!IsEmpty())
-            {
-                T item = array[top];
-                top--;
-                return item;
-            }
-
-            throw new InvalidOperationException("Stack is empty.");
+            if (top == -1) return default(T); // if empty
+            T item = stack[top];
+            top--;
+            return item;
         }
 
-        // Peek (return but don't remove) the top item
-        public T Peek()
-        {
-            if (!IsEmpty())
-            {
-                return array[top];
-            }
-
-            throw new InvalidOperationException("Stack is empty.");
-        }
-
-        // Check if the stack is empty
+        // Check if stack is empty
         public bool IsEmpty()
         {
             return top == -1;
-        }
-
-        // Resize the array when full
-        private void Resize()
-        {
-            T[] newArray = new T[array.Length * 2];
-
-            for (int i = 0; i <= top; i++)
-            {
-                newArray[i] = array[i];
-            }
-
-            array = newArray;
-        }
-
-        // Optional: print stack contents (top to bottom)
-        public void PrintStack()
-        {
-            Console.WriteLine("Stack contents (top to bottom):");
-
-            for (int i = top; i >= 0; i--)
-            {
-                Console.WriteLine(array[i]);
-            }
-        }
-
-        // Optional: get the number of items
-        public int Count()
-        {
-            return top + 1;
         }
     }
 }
