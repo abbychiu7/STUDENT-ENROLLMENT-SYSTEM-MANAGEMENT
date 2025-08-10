@@ -124,7 +124,7 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
                             // Get the schedule based on section (A or B)
                             Schedule sched = (section == "A") ? c.SchedA : c.SchedB;
                             // Display course details with section, schedule, and status
-                            Console.WriteLine((enlistedCount) + ". " + (c.Code) + " | Section [" + section + "] - " + FormatSchedule(sched) + " | Status : " + (c.Status));
+                            Console.WriteLine($"{enlistedCount}. {c.Code} | Section [{section}] - {FormatSchedule(sched)} | Status : {c.Status}");
                         }
                     }
 
@@ -138,7 +138,7 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
                         {
                             rejectedCount++;
                             // Display rejected course code, status, and remarks
-                            Console.WriteLine((rejectedCount) + ". " + (c.Code) + " | Status : " + (c.Status) + " | Remarks : " + (c.Remarks));
+                            Console.WriteLine($"{rejectedCount}. {c.Code} | Status : {c.Status} | Remarks : {c.Remarks}");
                         }
                     }
 
@@ -182,9 +182,9 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
                         {
                             // Display each course with its index, code, units, and schedules
                             Course c = courses.Get(i);
-                            Console.WriteLine("\n" + (i + 1) + ". " + c.Code + " - " + c.Units + " Units");
-                            Console.WriteLine("\t[A] " + FormatSchedule(c.SchedA));
-                            Console.WriteLine("\t[B] " + FormatSchedule(c.SchedB));
+                            Console.WriteLine($"\n{i + 1}. {c.Code} - {c.Units} Units");
+                            Console.WriteLine($"\t[A] {FormatSchedule(c.SchedA)}");
+                            Console.WriteLine($"\t[B] {FormatSchedule(c.SchedB)}");
                         }
                         Console.WriteLine("[0] Cancel");
                         Console.Write("\nEnter course number to enlist: ");
@@ -205,7 +205,7 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
                         }
                     }
 
-                    if (courseNum == 0)// canceled, back to Student POV menu
+                    if (courseNum == 0) // canceled, back to Student POV menu
                     {
                         continue;
                     }
@@ -241,6 +241,42 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
                     {
                         Console.WriteLine("You already enlisted this course!");
                         Console.WriteLine("\nPress Enter to continue.");
+                        Console.ReadLine();
+                        continue; // back to Student POV menu
+                    }
+
+                    // Determine the schedule for the chosen section
+                    Schedule newSchedule = (section == "A") ? selectedCourse.SchedA : selectedCourse.SchedB;
+
+                    // --------------------
+                    // Check for schedule conflicts before enlisting
+                    // --------------------
+                    bool hasConflict = false;
+                    for (int i = 0; i < student.EnlistedCourses.Count(); i++)
+                    {
+                        Course existingCourse = student.EnlistedCourses.Get(i);
+
+                        // Skip rejected courses — only pending/approved should block enrollment
+                        if (existingCourse.Status == "Rejected")
+                            continue;
+
+                        string existingSection = student.ChosenSections.Get(i);
+                        Schedule existingSchedule = (existingSection == "A") ? existingCourse.SchedA : existingCourse.SchedB;
+
+                        // Check if schedules overlap (same day and overlapping time)
+                        if (IsScheduleConflict(existingSchedule, newSchedule))
+                        {
+                            hasConflict = true;
+                            Console.WriteLine($"\nSchedule conflict with {existingCourse.Code} [{existingSection}] - {FormatSchedule(existingSchedule)}");
+                            Console.WriteLine($"New course {selectedCourse.Code} [{section}] conflicts: {FormatSchedule(newSchedule)}");
+                        }
+                    }
+
+                    // If conflict found, cancel enlistment
+                    if (hasConflict)
+                    {
+                        Console.WriteLine("\nCannot enlist course due to schedule conflict.");
+                        Console.WriteLine("Press Enter to continue.");
                         Console.ReadLine();
                         continue; // back to Student POV menu
                     }
@@ -340,11 +376,11 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
         }
 
 
+
         // =============================
         // TEACHER POINT OF VIEW
         // Allows teacher to view student's enlisted courses, approve or reject with remarks
         // =============================
-
         static void TeacherPOV(Student student) //Teacher POV method
         {
             while (true)
@@ -391,6 +427,7 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
                     break; // Exit Teacher POV menu
                 }
 
+                // Get the selected course based on user's choice
                 var course = student.EnlistedCourses.Get(choice - 1);
 
                 // Show action menu for selected course
@@ -401,21 +438,21 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
                 Console.Write("Enter choice: ");
                 string action = Console.ReadLine();
 
-                if (action == "1")
+                if (action == "1") //if user chooses to approve the course
                 {
                     // Approve the course, clear remarks
-                    course.Status = "Approved";
-                    course.Remarks = "";
-                    SaveEnlistedCourses(student);
+                    course.Status = "Approved";     // Set course status to Approved
+                    course.Remarks = "";            // Clear any previous remarks
+                    SaveEnlistedCourses(student);   // Save the updated enlisted courses to file
                     Console.WriteLine("Course approved.");
                 }
-                else if (action == "2")
+                else if (action == "2") //if user chooses to reject the course
                 {
                     // Reject the course and get remarks from teacher
-                    course.Status = "Rejected";
+                    course.Status = "Rejected";     // Set course status to Rejected
                     Console.Write("Enter remarks: ");
-                    course.Remarks = Console.ReadLine();
-                    SaveEnlistedCourses(student);
+                    course.Remarks = Console.ReadLine(); // Get remarks from teacher
+                    SaveEnlistedCourses(student);        // Save the updated enlisted courses to file
                     Console.WriteLine("Course rejected with remarks.");
                 }
                 else if (action == "0")
@@ -433,23 +470,47 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
             }
         }
 
-        // Helper method: Format schedule nicely for display
-        static string FormatSchedule(Schedule sched)
+        // Method to check if two schedules have a time conflict
+        static bool IsScheduleConflict(Schedule s1, Schedule s2)
         {
-            return $"{sched.Day} {sched.StartHour:D2}:{sched.StartMinute:D2} - {sched.EndHour:D2}:{sched.EndMinute:D2}";
+            if (s1 == null || s2 == null) return false;
+
+            // Same day?
+            if (!s1.Day.Equals(s2.Day, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            // Convert schedule times to TimeSpan for comparison
+            TimeSpan start1 = new TimeSpan(s1.StartHour, s1.StartMinute, 0);
+            TimeSpan end1 = new TimeSpan(s1.EndHour, s1.EndMinute, 0);
+            TimeSpan start2 = new TimeSpan(s2.StartHour, s2.StartMinute, 0);
+            TimeSpan end2 = new TimeSpan(s2.EndHour, s2.EndMinute, 0);
+
+            // Overlap if start1 < end2 && start2 < end1
+            return (start1 < end2 && start2 < end1);
+        }
+
+        // Helper method: Format schedule nicely for display
+        static string FormatSchedule(Schedule sched)    // Takes a Schedule object and formats it as a string
+        {
+            return sched.Day + " "                              // Day of the week
+                + sched.StartHour.ToString("D2") + ":"          // Start hour with leading zero
+                + sched.StartMinute.ToString("D2") + " - "      // Start minute with leading zero
+                + sched.EndHour.ToString("D2") + ":"            // End hour with leading zero
+                + sched.EndMinute.ToString("D2");               // End minute with leading zero
         }
 
         // Save the student's enlisted courses to file including status and remarks
         public static void SaveEnlistedCourses(Student student)
         {
+            // Ensure the save file path exists
             using (StreamWriter writer = new StreamWriter(saveFilePath))
             {
+                // Write each enlisted course with its details
                 for (int i = 0; i < student.EnlistedCourses.Count(); i++)
                 {
-                    // Get course and section for each enlisted course
-                    Course c = student.EnlistedCourses.Get(i);
-                    // Get the section chosen by the student
-                    string section = student.ChosenSections.Get(i);
+                    Course c = student.EnlistedCourses.Get(i);          // Get the course
+                    string section = student.ChosenSections.Get(i);     // Get the section chosen by the student
+
                     // Save format: Code|Units|Section|Status|Remarks
                     writer.WriteLine((c.Code) + "|" + (c.Units) + "|" + (section) + "|" + (c.Status) + "|" + (c.Remarks));
                 }
@@ -482,15 +543,19 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
 
                         // Find the matching course from the original courses list by code
                         Course matchedCourse = null;
+
+                        // Loop through original courses to find the one with the same code
                         for (int i = 0; i < originalCourses.Count(); i++)
                         {
+                            // Check if the course code matches
                             if (originalCourses.Get(i).Code == code)
                             {
-                                matchedCourse = originalCourses.Get(i);
+                                matchedCourse = originalCourses.Get(i);     // Get the matching course
                                 break;
                             }
                         }
 
+                        // If a matching course is found, restore it
                         if (matchedCourse != null)
                         {
                             // Create a new course copying correct schedules from the matched original course
