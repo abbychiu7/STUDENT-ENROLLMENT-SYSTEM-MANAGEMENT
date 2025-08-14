@@ -14,7 +14,7 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
 
         static void Main(string[] args)
         {
-            Student student = new Student("Kyle Magalona"); // Create a student
+            Student student = new Student("Madlang Tuta"); // Create a student
 
             // Original list of courses with schedules as given
             CustomList<Course> courses = new CustomList<Course>();
@@ -79,6 +79,7 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
                         Console.WriteLine("=== Student POV ===\n");
 
                         // Show enlisted courses separated by status: Approved/Pending vs Rejected
+
                         int enlistedCount = 0;  // Counter for approved/pending courses
                         int rejectedCount = 0;  // Counter for rejected courses
 
@@ -98,10 +99,11 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
                                     // Get the schedule based on section (A or B)
                                     Schedule sched = (section == "A") ? c.SchedA : c.SchedB;
                                     // Display course details with section, schedule, and status
-                                    Console.WriteLine($"{enlistedCount}. {c.Code} | Section [{section}] - {FormatSchedule(sched)} | Status : {c.Status}");
+                                    Console.WriteLine(enlistedCount + ". " + c.Code + " | Section [" + section + "] - " + FormatSchedule(sched) + " | Status : " + c.Status);
+
                                 }
                             }
-
+                            
                             // UNAPPROVED SUBJECTS (Rejected)
                             Console.WriteLine("\n=== UNAPPROVED SUBJECTS ===");
                             for (int i = 0; i < student.EnlistedCourses.Count(); i++)
@@ -112,7 +114,7 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
                                 {
                                     rejectedCount++;
                                     // Display rejected course code, status, and remarks
-                                    Console.WriteLine($"{rejectedCount}. {c.Code} | Status : {c.Status} | Remarks : {c.Remarks}");
+                                    Console.WriteLine(rejectedCount + ". " + c.Code + " | Status : " + c.Status + " | Remarks : " + c.Remarks);
                                 }
                             }
 
@@ -156,9 +158,9 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
                                 {
                                     // Display each course with its index, code, units, and schedules
                                     Course c = courses.Get(i);
-                                    Console.WriteLine($"\n{i + 1}. {c.Code} - {c.Units} Units");
-                                    Console.WriteLine($"\t[A] {FormatSchedule(c.SchedA)}");
-                                    Console.WriteLine($"\t[B] {FormatSchedule(c.SchedB)}");
+                                    Console.WriteLine("\n" + (i + 1) + ". " + c.Code + " - " + c.Units + " Units");
+                                    Console.WriteLine("\t[A] " + FormatSchedule(c.SchedA));
+                                    Console.WriteLine("\t[B] " + FormatSchedule(c.SchedB));
                                 }
                                 Console.WriteLine("[0] Cancel");
                                 Console.Write("\nEnter course number to enlist: ");
@@ -242,8 +244,9 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
                                 {
                                     hasConflict = true;
                                     // Print conflict details
-                                    Console.WriteLine($"\nSchedule conflict with {existingCourse.Code} [{existingSection}] - {FormatSchedule(existingSchedule)}");
-                                    Console.WriteLine($"New course {selectedCourse.Code} [{section}] conflicts: {FormatSchedule(newSchedule)}");
+                                    Console.WriteLine("\nSchedule conflict with " + existingCourse.Code + " [" + existingSection + "] - " + FormatSchedule(existingSchedule));
+                                    Console.WriteLine("New course " + selectedCourse.Code + " [" + section + "] conflicts: " + FormatSchedule(newSchedule));
+
                                 }
                             }
 
@@ -329,8 +332,8 @@ namespace DSTALGO_FINAL_PROJECT_GROUP2
 
                                 // Optional: Could handle undoStack here if needed (not implemented)
 
-                                SaveEnlistedCourses(student);
-                                Console.WriteLine($"Course {removedCourse.Code} removed successfully.");
+                                SaveEnlistedCourses(student); //Save the Enlisted Cource of Student
+                                Console.WriteLine("Course " + removedCourse.Code + " removed successfully.");
                             }
                             else
                             {
